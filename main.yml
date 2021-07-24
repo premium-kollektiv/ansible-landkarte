@@ -1,0 +1,5 @@
+---
+- hosts: landkarte
+  roles:
+      - apache
+      - mariadb

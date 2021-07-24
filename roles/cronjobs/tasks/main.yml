@@ -1,0 +1,14 @@
+- name: Add cronjob for collmex update
+  cron:
+    name: "update"
+    minute: "0"
+    hour: "*/2"
+    job: "/usr/bin/php /var/www/api.landkarte.premium-cola.de/app/cli.php update >/dev/null 2>&1"
+
+- name: Add cronjob for address (geo) update
+  cron:
+    name: "update-geo"
+    minute: "10"
+    hour: "*/2"
+    job: "/usr/bin/php /var/www/api.landkarte.premium-cola.de/app/cli.php update geo >/dev/null 2>&1"
+    

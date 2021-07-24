@@ -1,0 +1,93 @@
+---
+- name: Install Apache2
+  apt:
+      name: "apache2"
+      state: latest
+      update_cache: yes
+
+- name: Install PHP
+  apt:
+      name:
+        - php
+        - libapache2-mod-php
+      state: latest
+      update_cache: yes
+  notify:
+      - restart apache2
+
+- name: "Create virtualhost for domain {{ item }}"
+  template:
+      src: apache-hostfile.j2
+      dest: "/etc/apache2/sites-available/{{ item }}.conf"
+      owner: root
+      group: root
+      mode: '0644'
+      force: no
+  with_items: "{{ domains }}"
+  notify:
+      - restart apache2
+
+- name: "Create /var/www directory for {{ item }}"
+  file:
+      path: "/var/www/{{ item }}"
+      state: directory
+      owner: www-data
+      group: www-data
+      mode: ug=rwxs,o=rx
+  with_items:
+    - "{{ domains }}"
+
+- name: "Enable apache2 site {{ item }}"
+  command: a2ensite {{ item }}
+  args:
+      creates: /etc/apache2/sites-enabled/{{ item }}.conf
+  with_items:
+    - "{{ domains }}"
+  notify:
+      - restart apache2
+
+- name: Enable apache module {{ item }}
+  apache2_module: name={{ item }} state=present
+  with_items:
+      - http2
+      - rewrite
+      - ssl
+      - headers
+      - socache_shmcb
+      - expires
+      - proxy
+  notify:
+      - restart apache2
+
+- name: Add intermediate-ssl config
+  copy:
+      src: intermediate-ssl.conf
+      dest: /etc/apache2/conf-available/intermediate-ssl.conf
+      owner: root
+      group: root
+      mode: '0644'
+- name: Enable intermediate-ssl config
+  command: a2enconf intermediate-ssl
+  args:
+      creates: /etc/apache2/conf-enabled/intermediate-ssl.conf
+  notify:
+      - restart apache2
+
+- name: Install certbot
+  apt:
+      name: "certbot"
+      state: latest
+      update_cache: yes
+- name: Install certbot apache plugin
+  apt:
+      name: "python-certbot-apache"
+      state: latest
+      update_cache: yes
+
+# - name: "Certbot run for {{ item }}"
+#   command: certbot run -n --apache --redirect --hsts --agree-tos --email "christoph.h@premium-kollektiv.de" -d {{ item }}
+#   args:
+#       creates: /etc/apache2/sites-available/{{ item }}-le-ssl.conf
+#   with_items: "{{ domains }}"
+#   notify:
+#       - restart apache2

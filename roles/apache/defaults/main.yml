@@ -1,0 +1,7 @@
+---
+frontend:
+    - landkarte.premium-kollektiv.de
+    - landkarte.premium-cola.de
+backend:
+    - api.landkarte.premium-kollektiv.de
+    - api.landkarte.premium-cola.de
