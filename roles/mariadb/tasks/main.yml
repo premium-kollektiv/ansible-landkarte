@@ -1,6 +1,33 @@
 ---
-- name: Install Mariadb
+- name: Install Mariadb and community.mysql dependency
   apt:
-      name: "mariadb-server"
-      state: latest
+      name:
+        - "mariadb-server"
+        - "python-pymysql" # needed for community.mysql
+      state: present
       update_cache: yes
+
+# Needed on the first run
+# TODO: Build an idempotent playbook
+# - name: Set root password
+#   community.mysql.mysql_user:
+#     login_unix_socket: '/var/run/mysqld/mysqld.sock'
+#     name: 'root'
+#     password: '{{mariadbRootPassword}}'
+#     host_all: yes
+
+- name: Removes anonymous user account for localhost
+  community.mysql.mysql_user:
+    login_user: root
+    login_password: '{{mariadbRootPassword}}'
+    name: ''
+    host: localhost
+    state: absent
+
+- name: Removes all anonymous user accounts
+  community.mysql.mysql_user:
+    login_user: root
+    login_password: '{{mariadbRootPassword}}'
+    name: ''
+    host_all: yes
+    state: absent
