@@ -13,3 +13,6 @@ creating /var/www subdirectories and enabling ssl via certbot
 
 Installs mariadb
 
+## backend
+
+Deploy the actual backend for the landkarte app

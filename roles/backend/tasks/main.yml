@@ -1,0 +1,31 @@
+- name: Create the landkarte database
+  community.mysql.mysql_db:
+    login_user: root
+    login_password: '{{mariadbRootPassword}}'
+    login_unix_socket: '/var/run/mysqld/mysqld.sock'
+    name: '{{mariadbLandkarteDbname}}'
+    state: present
+
+- name: Create landkarte database user
+  community.mysql.mysql_user:
+    login_user: root
+    login_password: '{{mariadbRootPassword}}'
+    login_unix_socket: '/var/run/mysqld/mysqld.sock'
+    name: '{{mariadbLandkarteUsername}}'
+    password: '{{mariadbLandkartePassword}}'
+    priv: '{{mariadbLandkarteDbname}}.*:ALL'
+    state: present
+
+- name: Copy database dump file
+  copy:
+    src: map-3.0/docs/database/schema.sql
+    dest: /tmp
+
+# Verify manually via "SHOW TABLES" if needed
+- name: Restore database
+  community.mysql.mysql_db:
+    login_user: '{{mariadbLandkarteUsername}}'
+    login_password: '{{mariadbLandkartePassword}}'
+    name: '{{mariadbLandkarteDbname}}'
+    state: import
+    target: /tmp/schema.sql
