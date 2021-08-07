@@ -1,5 +1,10 @@
 <VirtualHost *:80>
-	ServerName {{ item }}
-        DocumentRoot /var/www/{{ item }}
-</VirtualHost>
+    ServerName {{ item }}
+    DocumentRoot /var/www/{{ frontendSourceDirectory }}
 
+    ErrorLog ${APACHE_LOG_DIR}/{{ item }}.error.log
+    CustomLog ${APACHE_LOG_DIR}/{{ item }}.access.log combined
+
+    # enable HTTP/2, if available
+    Protocols h2 http/1.1
+</VirtualHost>

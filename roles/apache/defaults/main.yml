@@ -1,6 +1,9 @@
 ---
-domains:
+# Always the first from the list is the "main" domain
+# the others will point to its source directory
+frontend:
     - landkarte.premium-kollektiv.de
     - landkarte.premium-cola.de
+backend:
     - api.landkarte.premium-kollektiv.de
     - api.landkarte.premium-cola.de

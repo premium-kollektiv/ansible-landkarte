@@ -15,34 +15,57 @@
   notify:
       - restart apache2
 
-- name: "Create virtualhost for domain {{ item }}"
+- name: "Create virtualhost for frontend-domains"
   template:
       src: apache-hostfile.j2
       dest: "/etc/apache2/sites-available/{{ item }}.conf"
       owner: root
       group: root
       mode: '0644'
-      force: no
-  with_items: "{{ domains }}"
+      force: no # certbot will change the files for https setup
+  vars:
+    frontendSourceDirectory: "{{ frontend[0] }}"
+  with_items: "{{ frontend }}"
   notify:
       - restart apache2
 
-- name: "Create /var/www directory for {{ item }}"
+- name: "Create virtualhost for backend-domains"
+  template:
+      src: api.apache-hostfile.j2
+      dest: "/etc/apache2/sites-available/{{ item }}.conf"
+      owner: root
+      group: root
+      mode: '0644'
+      force: no # certbot will change the files for https setup
+  vars:
+    backendSourceDirectory: "{{ backend[0] }}"
+  with_items: "{{ backend }}"
+  notify:
+      - restart apache2
+
+- name: "Create /var/www directory for backend"
   file:
-      path: "/var/www/{{ item }}"
+      path: "/var/www/{{ backend[0] }}"
       state: directory
       owner: www-data
       group: www-data
       mode: ug=rwxs,o=rx
-  with_items:
-    - "{{ domains }}"
+
+- name: "Create /var/www directory for frontend"
+  file:
+      path: "/var/www/{{ frontend[0] }}"
+      state: directory
+      owner: www-data
+      group: www-data
+      mode: ug=rwxs,o=rx
 
 - name: "Enable apache2 site {{ item }}"
   command: a2ensite {{ item }}
   args:
       creates: /etc/apache2/sites-enabled/{{ item }}.conf
   with_items:
-    - "{{ domains }}"
+    - "{{ frontend }}"
+    - "{{ backend }}"
   notify:
       - restart apache2
 

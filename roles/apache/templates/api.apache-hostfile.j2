@@ -1,0 +1,21 @@
+<VirtualHost *:80>
+    ServerName {{ item }}
+    DocumentRoot /var/www/{{ backendSourceDirectory }}
+
+    ErrorLog ${APACHE_LOG_DIR}/{{ item }}.error.log
+    CustomLog ${APACHE_LOG_DIR}/{{ item }}.access.log combined
+
+    <Directory /var/www/{{ backendSourceDirectory }}>
+        Options -Indexes +FollowSymLinks +MultiViews
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    <FilesMatch \.php$>
+        SetHandler "proxy:fcgi://127.0.0.1:9000"
+    </FilesMatch>
+
+    <IfModule mod_deflate.c>
+        AddOutputFilterByType DEFLATE application/json
+    </IfModule>
+</VirtualHost>
