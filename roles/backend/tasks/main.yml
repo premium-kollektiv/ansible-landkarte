@@ -29,3 +29,24 @@
     name: '{{mariadbLandkarteDbname}}'
     state: import
     target: /tmp/schema.sql
+
+- name: Install composer dependencies
+  apt:
+    name:
+      - "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items:
+    - wget
+    - php-cli
+    - php-zip
+    - unzip
+
+- name: Download composer installer
+  get_url:
+    url: https://getcomposer.org/installer
+    dest: /tmp/composer-setup.php
+- name: Install composer globally
+  shell:
+    cmd: "php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer"
+    creates: /usr/local/bin/composer
