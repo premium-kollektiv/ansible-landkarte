@@ -80,3 +80,30 @@
 - name: Enable phalcon as php module
   shell:
     cmd: "phpenmod phalcon"
+
+- name: Deploy backend code
+  copy:
+    src: "map-3.0/{{ item }}"
+    dest: "/var/www/{{ backend[0] }}"
+    owner: www-data
+    group: www-data
+  with_items:
+    - app
+    - public
+    - composer.json
+    - composer.lock
+
+- name: Install backend app composer dependencies
+  command: composer install --no-plugins --no-scripts
+  args:
+    chdir: "/var/www/{{ backend[0] }}"
+
+# - name: Install backend app composer dependencies
+#   shell: "composer install --no-plugins --no-scripts"
+#   args:
+#     chdir: "/var/www/{{ backend[0] }}"
+#     creates: "/var/www/{{ backend[0] }}/vendor"
+#   become: yes
+#   become_method: su
+#   become_user: www-data
+#   become_flags: '-s /bin/bash'
