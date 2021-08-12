@@ -7,11 +7,14 @@
 
 - name: Install PHP
   apt:
-      name:
-        - php
-        - libapache2-mod-php
-      state: latest
-      update_cache: yes
+    name:
+      - "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items:
+    - php
+    - libapache2-mod-php
+    - php7.3-fpm
   notify:
       - restart apache2
 
@@ -95,6 +98,13 @@
       creates: /etc/apache2/conf-enabled/intermediate-ssl.conf
   notify:
       - restart apache2
+
+- name: Enable fpm conf
+  command: a2enconf "{{ item }}"
+  with_items:
+    - php7.3-fpm
+  notify:
+    - restart apache2
 
 - name: Install certbot
   apt:
