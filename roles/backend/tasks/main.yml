@@ -50,3 +50,33 @@
   shell:
     cmd: "php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer"
     creates: /usr/local/bin/composer
+
+- name: Install phalcon prerequisites
+  apt:
+    name:
+      - "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items:
+    - gnupg
+    - curl
+    - debian-archive-keyring
+- name: Download phalcon sources.list
+  get_url:
+    url: https://packagecloud.io/install/repositories/phalcon/stable/config_file.list?os=debian&dist=10
+    dest: /etc/apt/sources.list.d/phalcon_stable.list
+- name: Install phalcon gpg key
+  shell:
+    cmd: "curl -L https://packagecloud.io/phalcon/stable/gpgkey 2> /dev/null | apt-key add -"
+    creates: /etc/apt/trusted.gpg
+- name: Install phalcon
+  apt:
+    name:
+      - "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items:
+    - php7.3-phalcon=3.4.5-1+php7.3
+- name: Enable phalcon as php module
+  shell:
+    cmd: "phpenmod phalcon"
