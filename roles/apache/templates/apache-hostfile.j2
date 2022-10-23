@@ -5,6 +5,12 @@
     ErrorLog ${APACHE_LOG_DIR}/{{ item }}.error.log
     CustomLog ${APACHE_LOG_DIR}/{{ item }}.access.log combined
 
+    <Directory /var/www/{{ frontendSourceDirectory }}>
+        Options -Indexes +MultiViews
+        AllowOverride All
+        Require all granted
+    </Directory>
+
     # enable HTTP/2, if available
     Protocols h2 http/1.1
 </VirtualHost>
